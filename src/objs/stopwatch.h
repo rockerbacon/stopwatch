@@ -3,18 +3,21 @@
 #include <chrono>
 #include <ostream>
 
-class Stopwatch {
+class stopwatch {
 	private:
-		std::chrono::high_resolution_clock::time_point lapBegin;
-		std::chrono::high_resolution_clock::time_point stopwatchBegin;
+		std::chrono::high_resolution_clock::time_point lap_begin;
+		std::chrono::high_resolution_clock::time_point stopwatch_begin;
 	public:
-		Stopwatch (void);
+		stopwatch (void);
 
 		void reset (void);
-		std::chrono::high_resolution_clock::duration totalTime (void) const;
-		std::chrono::high_resolution_clock::duration lapTime (void) const;
-		void newLap (void);
+		std::chrono::high_resolution_clock::duration total_time (void) const;
+		std::chrono::high_resolution_clock::duration lap_time (void);
 };
 
-std::ostream& operator<< (std::ostream &stream, std::chrono::high_resolution_clock::duration duration);
+std::ostream& operator<<(std::ostream& stream, const std::chrono::high_resolution_clock::duration& duration);
+
+namespace std {
+	std::string to_string (const std::chrono::high_resolution_clock::duration& duration);
+}
 
