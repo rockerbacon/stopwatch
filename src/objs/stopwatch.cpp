@@ -43,17 +43,20 @@ void push_duration_into_stream (stream_t& stream, chrono::high_resolution_clock:
 	auto milliseconds = chrono::duration_cast<chrono::milliseconds>(duration);
 	duration -= chrono::duration_cast<decltype(duration)>(milliseconds);
 	auto microseconds = chrono::duration_cast<chrono::microseconds>(duration);
+	duration -= chrono::duration_cast<decltype(duration)>(microseconds);
+	auto nanoseconds = chrono::duration_cast<chrono::nanoseconds>(duration);
 
-	time_unit_counts.reserve(5);
+	time_unit_counts.reserve(6);
 
 	time_unit_counts.push_back({"h", hours.count()});
 	time_unit_counts.push_back({"m", minutes.count()});
 	time_unit_counts.push_back({"s", seconds.count()});
 	time_unit_counts.push_back({"ms", milliseconds.count()});
 	time_unit_counts.push_back({"us", microseconds.count()});
+	time_unit_counts.push_back({"ns", nanoseconds.count()});
 
 	stream_altered = false;
-	for (i = 0; i < time_unit_counts.size()-1; i++) {
+	for (i = 0; i < time_unit_counts.size()-2; i++) {
 		if (time_unit_counts[i].count > 0) {
 			if (stream_altered) {
 				stream << ' ';
@@ -64,6 +67,7 @@ void push_duration_into_stream (stream_t& stream, chrono::high_resolution_clock:
 	}
 
 	if (!stream_altered) {
+		if (time_unit_counts[i].count == 0) i++;
 		stream << time_unit_counts[i].count << time_unit_counts[i].unit;
 	}
 }
