@@ -4,8 +4,7 @@ SCRIPT_DIR=$(dirname $0)
 PROJECT_ROOT=$(realpath "$SCRIPT_DIR/../../../..")
 MODULE_ROOT=$(realpath "$SCRIPT_DIR")
 DEPENDENCIES_DIR="$PROJECT_ROOT/external_dependencies"
-DEPENDENCIES_LIB_DIR="$DEPENDENCIES_DIR/lib"
-DEPENDENCIES_INCLUDE_DIR="$DEPENDENCIES_DIR/include"
+DEPENDENCIES_OBJ_DIR="$DEPENDENCIES_DIR/objs"
 REPOSITORIES_DIR="$DEPENDENCIES_DIR/git"
 
 mkdir -p "$REPOSITORIES_DIR"
@@ -64,24 +63,7 @@ fi
 if [ -f "$DEPENDENCY_REPOSITORY_DIR/.assertions/language" ]; then
 	DEPENDENCY_LANGUAGE=$(cat "$DEPENDENCY_REPOSITORY_DIR/.assertions/language")
 	if [ "$DEPENDENCY_LANGUAGE" == "cpp" ]; then
-		if [ -d "$DEPENDENCY_REPOSITORY_DIR/build" ]; then
-			echo "Info: dependency '$GIT_URL' already built" 1>&2
-		else
-			echo "Info: building dependency '$GIT_URL'..." 1>&2
-			DEPENDENCY_BUILD_OUTPUT=$("$DEPENDENCY_REPOSITORY_DIR/build.sh" 2>&1)
-			if [ "$?" != "0" ]; then
-				echo "Error: failed to build dependency '$GIT_URL':"
-				echo $DEPENDENCY_BUILD_OUTPUT
-				rollback_installation
-				exit 1
-			elif [ ! -d "$DEPENDENCY_REPOSITORY_DIR/build/release/lib" ]; then
-				echo "Error: dependency is not a lib"
-				rollback_installation
-				exit 1
-			fi
-			ln -s "$DEPENDENCY_REPOSITORY_DIR/build/release/lib" "$DEPENDENCIES_LIB_DIR/$RELATIVE_DEPENDENCY_REPOSITORY_DIR"
-			ln -s "$DEPENDENCY_REPOSITORY_DIR/build/release/include" "$DEPENDENCIES_INCLUDE_DIR/$RELATIVE_DEPENDENCY_REPOSITORY_DIR"
-		fi
+		ln -s "$DEPENDENCY_REPOSITORY_DIR/src/objs" "$DEPENDENCIES_OBJ_DIR/$RELATIVE_DEPENDENCY_REPOSITORY_DIR"
 	else
 		echo "Error: project uses Assertions, but it's not meant for this languague. Expected language: 'cpp', language reported by dependency: '${DEPENDENCY_LANGUAGE}'"
 		rollback_installation
