@@ -1,36 +1,36 @@
 #include "stopwatch.h"
 #include <vector>
+#include <sstream>
 
 using namespace std;
 
-Stopwatch::Stopwatch (void) {
-	this->reset();
+stopwatch::stopwatch (void) {
+	reset();
 }
 
-void Stopwatch::reset (void) {
-	this->stopwatchBegin = chrono::high_resolution_clock::now();
-	this->lapBegin = this->stopwatchBegin;
+void stopwatch::reset (void) {
+	stopwatch_begin = chrono::high_resolution_clock::now();
+	lap_begin = stopwatch_begin;
 }
 
-chrono::high_resolution_clock::duration Stopwatch::totalTime (void) const {
-	return chrono::high_resolution_clock::now() - this->stopwatchBegin;
+chrono::high_resolution_clock::duration stopwatch::total_time (void) const {
+	return chrono::high_resolution_clock::now() - this->stopwatch_begin;
 }
 
-chrono::high_resolution_clock::duration Stopwatch::lapTime (void) const {
-	return chrono::high_resolution_clock::now() - this->lapBegin;
+chrono::high_resolution_clock::duration stopwatch::lap_time (void) {
+	auto lap_time = chrono::high_resolution_clock::now() - lap_begin;
+	lap_begin = chrono::high_resolution_clock::now();
+	return lap_time;
 }
 
-void Stopwatch::newLap (void) {
-	this->lapBegin = chrono::high_resolution_clock::now();
-}
-
-struct TimeUnitCount {
-	string unit;
+struct time_unit_count {
+	std::string unit;
 	long long count;
 };
 
-ostream& operator<< (ostream &stream, chrono::high_resolution_clock::duration duration) {
-	vector<TimeUnitCount> time_unit_counts;
+template<typename stream_t>
+void push_duration_into_stream (stream_t& stream, chrono::high_resolution_clock::duration duration) {
+	vector<time_unit_count> time_unit_counts;
 	bool stream_altered;
 	size_t i;
 
@@ -66,7 +66,16 @@ ostream& operator<< (ostream &stream, chrono::high_resolution_clock::duration du
 	if (!stream_altered) {
 		stream << time_unit_counts[i].count << time_unit_counts[i].unit;
 	}
+}
 
+ostream& operator<<(ostream& stream, const chrono::high_resolution_clock::duration& duration) {
+	push_duration_into_stream(stream, duration);
 	return stream;
+}
+
+string std::to_string(const chrono::high_resolution_clock::duration& duration) {
+	stringstream string_builder;
+	push_duration_into_stream(string_builder, duration);
+	return string_builder.str();
 }
 
